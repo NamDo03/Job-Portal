@@ -1,0 +1,236 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ENUM
+enum Role {
+  CANDIDATE
+  RECRUITER
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum JobStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ApplicationStatus {
+  PENDING
+  VIEWED
+  ACCEPTED
+  REJECTED
+}
+
+enum CompanyStatus {
+  PENDING
+  APPROVED
+  BLOCKED
+  REJECTED
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  INTERNSHIP
+  REMOTE
+}
+
+enum CompanyMemberRole {
+  OWNER
+  REVIEWER
+}
+
+// TABLE
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  fullname  String
+  password  String
+  gender    Gender
+  role      Role       @default(CANDIDATE)
+  avatar    String?
+  resume    String?
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+
+  skills             UserSkill[]
+  applications       Application[]
+  savedJobs          SavedJob[]
+  companyMemberships CompanyMember[]
+  Company            Company[]
+}
+
+model Company {
+  id          Int           @id @default(autoincrement())
+  name        String
+  location    String
+  description String?
+  website     String?
+  logo        String?
+  status      CompanyStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  ownerId     Int
+  sizeId      Int?
+
+  members CompanyMember[]
+  jobs    Job[]
+  owner   User            @relation(fields: [ownerId], references: [id])
+  size    CompanySize?    @relation(fields: [sizeId], references: [id])
+  images  CompanyImage[]
+}
+
+model CompanyMember {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  companyId Int
+  role      CompanyMemberRole @default(REVIEWER)
+
+  user    User    @relation(fields: [userId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@unique([userId, companyId])
+}
+
+model Job {
+  id                    Int       @id @default(autoincrement())
+  companyId             Int
+  categoryId            Int
+  positionId            Int
+  salaryId              Int
+  experienceLevelId     Int
+  title                 String
+  jobDescription        String    
+  candidateRequirements String    
+  benefits              String    
+  workingHours          String
+  location              String
+  jobType               JobType
+  postedAt              DateTime  @default(now())
+  expiresAt             DateTime
+  amount                Int
+  status                JobStatus @default(PENDING)
+
+  company         Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  category        Category        @relation(fields: [categoryId], references: [id])
+  position        Position        @relation(fields: [positionId], references: [id])
+  salary          Salary          @relation(fields: [salaryId], references: [id])
+  experienceLevel ExperienceLevel @relation(fields: [experienceLevelId], references: [id])
+  applications    Application[]
+  savedByUsers    SavedJob[]
+  skills          JobSkill[]
+}
+
+model Salary {
+  id  Int @id @default(autoincrement())
+  min Int
+  max Int
+
+  jobs Job[]
+}
+
+model Position {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  jobs Job[]
+}
+
+model ExperienceLevel {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  jobs Job[]
+}
+
+model Application {
+  id          Int               @id @default(autoincrement())
+  jobId       Int
+  userId      Int
+  coverLetter String
+  resume      String
+  fullname    String
+  email       String
+  status      ApplicationStatus @default(PENDING)
+  appliedAt   DateTime          @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model SavedJob {
+  id      Int      @id @default(autoincrement())
+  userId  Int
+  jobId   Int
+  savedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  job  Job  @relation(fields: [jobId], references: [id])
+}
+
+model Skill {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  users UserSkill[]
+  jobs  JobSkill[]
+}
+
+model UserSkill {
+  id      Int @id @default(autoincrement())
+  userId  Int
+  skillId Int
+
+  user  User  @relation(fields: [userId], references: [id])
+  skill Skill @relation(fields: [skillId], references: [id])
+}
+
+model JobSkill {
+  id      Int @id @default(autoincrement())
+  jobId   Int
+  skillId Int
+
+  job   Job   @relation(fields: [jobId], references: [id])
+  skill Skill @relation(fields: [skillId], references: [id])
+}
+
+model Category {
+  id    Int     @id @default(autoincrement())
+  name  String
+  image String?
+
+  jobs Job[]
+}
+
+model CompanySize {
+  id           Int @id @default(autoincrement())
+  minEmployees Int
+  maxEmployees Int
+
+  companies Company[]
+}
+
+model CompanyImage {
+  id        Int      @id @default(autoincrement())
+  companyId Int
+  imageUrl  String
+  createdAt DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}

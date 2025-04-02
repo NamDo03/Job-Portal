@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Epilogue", serif;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.heading {
+  font-family: "Sora", serif !important;
+  font-weight: 600;
+}
+
+.name {
+  font-family: "Red Hat Display", serif !important;
+  font-weight: 700;
+}
+
+.main-container {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Responsive breakpoints */
+@media (min-width: 480px) {
+  .main-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .main-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .main-container {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .main-container {
+    padding-left: 6rem;
+    padding-right: 6rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .main-container {
+    padding-left: 8rem;
+    padding-right: 8rem;
+  }
+}
+
+.ql-editor {
+  height: 250px !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.btn-primary {
+  @apply px-6 py-3 text-base font-medium text-white transition-all rounded-sm bg-primary hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+
+.rich-text-content ul,
+.rich-text-content ol {
+  list-style-position: inside !important;
+  padding-left: 20px !important;
+}
+
+.rich-text-content ul {
+  list-style-type: disc !important;
+}
+
+.rich-text-content ol {
+  list-style-type: decimal !important;
+}
