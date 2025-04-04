@@ -3,10 +3,10 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { getSavedJobsByUser, unsaveJob } from "../services/savedJob";
-import Loader from "../components/loader/Loader";
 import JobCard from "../components/card/JobCard";
 import { toast } from "react-toastify";
 import EmptyState from "../components/common/EmptyState";
+import JobCardSkeleton from "../components/skeleton/JobCardSkeleton";
 
 const SavedJobsPage = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -53,10 +53,6 @@ const SavedJobsPage = () => {
     }
   };
 
-  if (loading) {
-    return <Loader fullScreen />;
-  }
-
   return (
     <div className="py-8 min-h-[80vh] main-container">
       <div className="mb-8">
@@ -76,29 +72,33 @@ const SavedJobsPage = () => {
         />
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
-          {savedJobs.map((savedJob) => (
-            <div
-              key={savedJob.id}
-              className="relative bg-white border rounded-lg shadow-sm"
-            >
-              <JobCard job={savedJob.job} />
-              <button
-                onClick={() => handleUnsaveJob(savedJob.job.id)}
-                disabled={unsavingId === savedJob.job.id}
-                className="absolute flex items-center gap-2 p-2 text-sm text-gray-600 transition-colors rounded-md top-4 right-4 hover:bg-gray-50 hover:text-primary"
-                aria-label="Unsave job"
-              >
-                {unsavingId === savedJob.job.id ? (
-                  "Removing..."
-                ) : (
-                  <>
-                    <FaBookmark className="text-primary" size={22}/>
-                    <span className="hidden sm:inline">Saved</span>
-                  </>
-                )}
-              </button>
-            </div>
-          ))}
+          {loading
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <JobCardSkeleton key={index} />
+              ))
+            : savedJobs.map((savedJob) => (
+                <div
+                  key={savedJob.id}
+                  className="relative bg-white border rounded-lg shadow-sm"
+                >
+                  <JobCard job={savedJob.job} />
+                  <button
+                    onClick={() => handleUnsaveJob(savedJob.job.id)}
+                    disabled={unsavingId === savedJob.job.id}
+                    className="absolute flex items-center gap-2 p-2 text-sm text-gray-600 transition-colors rounded-md top-4 right-4 hover:bg-gray-50 hover:text-primary"
+                    aria-label="Unsave job"
+                  >
+                    {unsavingId === savedJob.job.id ? (
+                      "Removing..."
+                    ) : (
+                      <>
+                        <FaBookmark className="text-primary" size={22} />
+                        <span className="hidden sm:inline">Saved</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              ))}
         </div>
       )}
     </div>

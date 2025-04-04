@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import JobCard from "../card/JobCard";
 import { getLatestJobs } from "../../services/job";
 import { toast } from "react-toastify";
-import Loader from "../loader/Loader";
+import JobCardSkeleton from "../skeleton/JobCardSkeleton";
 
 const LastestJobs = () => {
   const [jobs, setJobs] = useState([]);
@@ -26,7 +26,6 @@ const LastestJobs = () => {
     fetchJobs();
   }, []);
 
-  if (loading) return <Loader />;
   return (
     <div className="mt-20 main-container bg-sub-primary py-14">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
@@ -40,8 +39,13 @@ const LastestJobs = () => {
           Show all jobs <FaArrowRight />
         </Link>
       </div>
-
-      {jobs.length > 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-1 gap-8 mt-12 sm:grid-cols-2">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <JobCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : jobs.length > 0 ? (
         <div className="grid grid-cols-1 gap-8 mt-12 sm:grid-cols-2">
           {jobs.map((job) => (
             <JobCard job={job} key={job.id} />

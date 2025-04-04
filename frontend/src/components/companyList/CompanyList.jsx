@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { getComanySize } from "../../services/companySize";
 import Pagination from "../common/Pagination";
 import Loader from "../loader/Loader";
+import CompanyCardSkeleton from "../skeleton/CompanyCardSkeleton";
 
 const CompanyList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -152,8 +153,6 @@ const CompanyList = () => {
     applyFilters(newFilters);
   };
 
-  if (loading) return <Loader />;
-
   return (
     <div className="flex flex-row gap-10 py-16 main-container">
       <CompanyFilter
@@ -230,7 +229,11 @@ const CompanyList = () => {
 
         {/* Companies list */}
         <div className="grid grid-cols-1 gap-8 mt-8 md:grid-cols-2">
-          {companies.length > 0 ? (
+          {loading ? (
+            Array.from({ length: 6 }).map((_, index) => (
+              <CompanyCardSkeleton key={index} />
+            ))
+          ) : companies.length > 0 ? (
             companies.map((company) => (
               <CompanyCard key={company.id} company={company} />
             ))

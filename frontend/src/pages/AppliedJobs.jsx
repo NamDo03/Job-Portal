@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
-import Loader from "../components/loader/Loader";
 import JobCard from "../components/card/JobCard";
 import { toast } from "react-toastify";
 import EmptyState from "../components/common/EmptyState";
@@ -10,6 +8,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { getApplicationsByUserId } from "../services/application";
 import Pagination from "../components/common/Pagination";
 import { formatDate } from "../utils/dateUtils";
+import JobCardSkeleton from "../components/skeleton/JobCardSkeleton";
 const AppliedJobs = () => {
   const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -44,10 +43,6 @@ const AppliedJobs = () => {
     fetchAppliedJobs();
   }, [currentUser, navigate, currentPage]);
 
-  if (loading) {
-    return <Loader />;
-  }
-
   return (
     <div className="py-8 min-h-[80vh] main-container">
       <div className="mb-8">
@@ -68,36 +63,40 @@ const AppliedJobs = () => {
         />
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
-          {appliedJobs.map((application) => (
-            <div
-              key={application.id}
-              className="relative bg-white border rounded-lg shadow-sm"
-            >
-              <JobCard job={application.job} hoverShadow={false} />
-              <div className="py-3 mx-6 mt-2 text-base font-medium border-t-2 lg:mx-10">
-                {application.status === "PENDING" && (
-                  <span className="text-yellow-500">
-                    You applied on {formatDate(application.appliedAt)}
-                  </span>
-                )}
-                {application.status === "VIEWED" && (
-                  <span className="text-blue-500">
-                    Your application has been viewed
-                  </span>
-                )}
-                {application.status === "ACCEPTED" && (
-                  <span className="text-green-500">
-                    Congratulations! Your application was accepted
-                  </span>
-                )}
-                {application.status === "REJECTED" && (
-                  <span className="text-red-500">
-                    Unfortunately, your application was rejected
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
+          {loading
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <JobCardSkeleton key={index} />
+              ))
+            : appliedJobs.map((application) => (
+                <div
+                  key={application.id}
+                  className="relative bg-white border rounded-lg shadow-sm"
+                >
+                  <JobCard job={application.job} hoverShadow={false} />
+                  <div className="py-3 mx-6 mt-2 text-base font-medium border-t-2 lg:mx-10">
+                    {application.status === "PENDING" && (
+                      <span className="text-yellow-500">
+                        You applied on {formatDate(application.appliedAt)}
+                      </span>
+                    )}
+                    {application.status === "VIEWED" && (
+                      <span className="text-blue-500">
+                        Your application has been viewed
+                      </span>
+                    )}
+                    {application.status === "ACCEPTED" && (
+                      <span className="text-green-500">
+                        Congratulations! Your application was accepted
+                      </span>
+                    )}
+                    {application.status === "REJECTED" && (
+                      <span className="text-red-500">
+                        Unfortunately, your application was rejected
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
         </div>
       )}
 

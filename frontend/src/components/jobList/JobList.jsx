@@ -9,11 +9,11 @@ import FilterModal from "../modal/FilterModal";
 import { AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 import { getJobs } from "../../services/job";
-import Loader from "../loader/Loader";
 import { getCategories } from "../../services/category";
 import { getLevels } from "../../services/level";
 import { getSalaries } from "../../services/salary";
 import Pagination from "../common/Pagination";
+import JobCardSkeleton from "../skeleton/JobCardSkeleton";
 
 const filterSections = [
   {
@@ -242,8 +242,6 @@ const JobList = () => {
     applyFilters(newFilters);
   };
 
-  if (loading) return <Loader />;
-
   return (
     <div className="flex flex-row gap-10 py-16 main-container">
       {/* Desktop Filters */}
@@ -334,7 +332,11 @@ const JobList = () => {
         </div>
         {/* Job List */}
         <div className="grid grid-cols-1 gap-4 mt-8">
-          {jobs.length > 0 ? (
+          {loading ? (
+            Array.from({ length: 6 }).map((_, index) => (
+              <JobCardSkeleton key={index} />
+            ))
+          ) : jobs.length > 0 ? (
             jobs.map((job) => <JobCard job={job} key={job.id} haveBtn={true} />)
           ) : (
             <p className="text-center text-gray-500 col-span-full">
