@@ -7,7 +7,7 @@ import {
 } from "../../../animations/motionVariants";
 import { VscArrowRight } from "react-icons/vsc";
 import { HiOutlineChartBar, HiOutlineClipboardList } from "react-icons/hi";
-import { HiOutlineUsers } from "react-icons/hi2";
+import { HiOutlineUsers, HiOutlineUserGroup } from "react-icons/hi2";
 import { TbBuildingSkyscraper, TbCategory } from "react-icons/tb";
 import {
   FaRegListAlt,
@@ -180,7 +180,7 @@ const Sidebar = () => {
                     },
                   ]}
                 >
-                  <HiOutlineChartBar
+                  <HiOutlineClipboardList
                     size={28}
                     className="stroke-inherit stroke-[1.5] min-w-8 w-8"
                   />
@@ -189,8 +189,9 @@ const Sidebar = () => {
                   name="Candidate list"
                   isActive={activeLink === "Candidate list"}
                   onClick={() => handleNavigationClick("Candidate list")}
+                  link="/recruiter-dashboard/candidate/list"
                 >
-                  <HiOutlineChartBar
+                  <HiOutlineUserGroup
                     size={28}
                     className="stroke-inherit stroke-[1.5] min-w-8 w-8"
                   />

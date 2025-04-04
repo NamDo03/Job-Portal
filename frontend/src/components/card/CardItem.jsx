@@ -32,7 +32,7 @@ const CardItem = ({ job }) => {
         </h4>
         <p className="flex flex-row flex-wrap items-center text-sm text-text-1">
           <Link
-            to={`/companies/1`}
+            to={`/jobs/${job.id}`}
             className="cursor-pointer hover:text-primary"
           >
             {job.company.name}

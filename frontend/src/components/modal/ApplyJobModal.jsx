@@ -13,13 +13,18 @@ import company_default from "../../assets/company_default.png";
 import { formatLocation } from "../../utils/locationFormatter";
 import { formatJobType } from "../../utils/jobTypeFormatter";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { createApplication } from "../../services/application";
+import Loader from "../loader/Loader";
 
-const ApplyJobModal = ({ job, onClose }) => {
+const ApplyJobModal = ({ job, onClose, setHasApplied }) => {
   const { currentUser } = useSelector((state) => state.user);
   const [option, setOption] = useState("manual");
   const [coverLetter, setCoverLetter] = useState("");
   const [resume, setResume] = useState(null);
   const [profileError, setProfileError] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -37,19 +42,49 @@ const ApplyJobModal = ({ job, onClose }) => {
   const handleRemoveResume = () => {
     setResume(null);
   };
-
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     if (option === "profile") {
       if (!currentUser.resume) {
         setProfileError(true);
         return;
       }
-      console.log("Ứng tuyển bằng hồ sơ cá nhân", coverLetter);
-    } else {
-      console.log("Thông tin ứng tuyển:", data);
     }
-    onClose();
+
+    const formData = new FormData();
+    formData.append("jobId", job.id);
+    formData.append(
+      "fullname",
+      option === "manual" ? data.name : currentUser.fullname
+    );
+    formData.append(
+      "email",
+      option === "manual" ? data.email : currentUser.email
+    );
+    formData.append("coverLetter", coverLetter);
+
+    if (option === "manual") {
+      formData.append("resume", resume);
+    } else if (option === "profile" && currentUser.resume) {
+      formData.append("resume", currentUser.resume);
+    }
+
+    setLoading(true);
+    try {
+      await createApplication(formData);
+      onClose();
+      toast.success("Application Successful!");
+      setHasApplied(true);
+    } catch (error) {
+      console.error("Application Error:", error);
+      toast.error("Application failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <motion.div
@@ -169,7 +204,10 @@ const ApplyJobModal = ({ job, onClose }) => {
                   type="radio"
                   value="manual"
                   checked={option === "manual"}
-                  onChange={() => setOption("manual")}
+                  onChange={() => {
+                    setOption("manual");
+                    setProfileError(false);
+                  }}
                   className="accent-primary text-primary"
                 />
                 Enter Manually
@@ -311,9 +349,9 @@ const ApplyJobModal = ({ job, onClose }) => {
           <button
             type="submit"
             className="bg-primary text-white text-base font-semibold px-6 py-2.5 rounded hover:bg-primary/80 w-full"
-            onClick={handleSubmit}
+            disabled={loading}
           >
-            Apply Now
+            {loading ? "Submitting..." : "Apply Now"}
           </button>
         </div>
       </motion.form>

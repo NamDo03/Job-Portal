@@ -21,7 +21,6 @@ const CompanyDetail = () => {
 
     fetchCompanyDetails();
   }, [id]);
-  console.log(company);
   if (loading) return <Loader />;
 
   if (!company) return <div>Company not found</div>;

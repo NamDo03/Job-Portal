@@ -46,10 +46,11 @@ import { useSelector } from "react-redux";
 import UpdateMemberRole from "./pages/Dashboard/Company/UpdateMemberRole";
 import JobPostingList from "./pages/Dashboard/Job/JobPostingList";
 import CreateJob from "./pages/Dashboard/Job/CreateJob";
-// import JobList from "./components/jobList/JobList";
 import JobListAdmin from "./pages/Dashboard/Job/JobList";
 import JobDetailAdmin from "./pages/Dashboard/Job/JobDetail";
 import SavedJobsPage from "./pages/SavedJobsPage";
+import CandidateList from "./pages/Dashboard/Candidate/CandidateList";
+import CandidateDetail from "./pages/Dashboard/Candidate/CandidateDetail";
 
 function App() {
   const { currentUser } = useSelector((state) => state.user);
@@ -96,6 +97,8 @@ function App() {
         { path: "job/list", element: <JobPostingList /> },
         { path: "job/create", element: <CreateJob /> },
         { path: "job/:jobId", element: <JobDetailAdmin /> },
+        { path: "candidate/list", element: <CandidateList /> },
+        { path: "candidate/:id", element: <CandidateDetail /> },
       ]
     : [{ path: "company/create", element: <CreateCompany /> }];
 

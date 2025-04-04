@@ -146,7 +146,7 @@ const JobPostingList = () => {
       {/* Table */}
       {jobPostings.length > 0 ? (
         <Table
-          columns={["title", "amount", "jobType", "status"]}
+          columns={["id","title", "amount", "jobType", "status"]}
           data={jobPostings}
           pageSize={8}
           currentPage={currentPage}

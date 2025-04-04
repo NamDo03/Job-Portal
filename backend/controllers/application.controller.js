@@ -1,12 +1,19 @@
 import prisma from "../lib/prisma.js";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
+import fs from "fs";
 
 export const createApplication = async (req, res) => {
+    const { jobId, coverLetter, fullname, email, resume } = req.body;
+    const userId = req.userId;
+    let resumeUrl = resume;
+    let resumeFile = req.files?.resume
     try {
-        const { jobId, coverLetter, resume, fullname, email } = req.body;
-        const userId = req.user.id;
-
-        if (!jobId || !coverLetter || !resume || !fullname || !email) {
+        if (!jobId || !fullname || !email) {
             return res.status(400).json({ message: "All fields are required!" });
+        }
+        if (resumeFile) {
+            const uploadedResume = await uploadToCloudinary(resumeFile[0].path, "resume");
+            resumeUrl = uploadedResume.secure_url;
         }
 
         const existingApplication = await prisma.application.findFirst({
@@ -20,12 +27,13 @@ export const createApplication = async (req, res) => {
             return res.status(400).json({ message: "You have already applied to this job!" });
         }
 
+
         const application = await prisma.application.create({
             data: {
                 jobId: parseInt(jobId),
                 userId: userId,
                 coverLetter,
-                resume,
+                resume: resumeUrl,
                 fullname,
                 email,
                 status: "PENDING",
@@ -38,7 +46,6 @@ export const createApplication = async (req, res) => {
                 },
             },
         });
-
         res.status(201).json(application);
     } catch (err) {
         console.log(err);
@@ -50,7 +57,7 @@ export const changeApplicationStatus = async (req, res) => {
     try {
         const { applicationId } = req.params;
         const { status } = req.body;
-        const userId = req.user.id;
+        const userId = req.userId;
 
         const validStatuses = ["PENDING", "VIEWED", "ACCEPTED", "REJECTED"];
         if (!validStatuses.includes(status)) {
@@ -78,13 +85,16 @@ export const changeApplicationStatus = async (req, res) => {
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
+            include: {
+                companyMemberships: true,
+            },
         });
 
         const isCompanyMember = application.job.company.members.some(
             (member) => member.userId === userId
         );
 
-        if (!isCompanyMember && user.member.role !== "REVIEWER" && user.member.role !== "OWNER") {
+        if (!isCompanyMember || !user.companyMemberships[0] || (user.companyMemberships[0].role !== "REVIEWER" && user.companyMemberships[0].role !== "OWNER")) {
             return res.status(403).json({ message: "Unauthorized to change status!" });
         }
 
@@ -106,16 +116,12 @@ export const changeApplicationStatus = async (req, res) => {
 export const getApplicationsByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
-        const { status, page = 1 } = req.query;
+        const { page = 1 } = req.query;
         const limit = 8;
 
         const whereClause = {
             userId: parseInt(userId),
         };
-
-        if (status) {
-            whereClause.status = status;
-        }
 
         const [applications, total] = await Promise.all([
             prisma.application.findMany({
@@ -158,7 +164,7 @@ export const getApplicationsByUserId = async (req, res) => {
 export const getApplicationsByCompanyId = async (req, res) => {
     try {
         const { companyId } = req.params;
-        const { jobId, status, page = 1 } = req.query;
+        const { jobId, status, page = 1, search } = req.query;
         const limit = 8;
 
         const companyIdNum = parseInt(companyId);
@@ -172,19 +178,24 @@ export const getApplicationsByCompanyId = async (req, res) => {
         const whereClause = {
             job: {
                 companyId: companyIdNum,
+                ...(jobIdNum ? { id: jobIdNum } : {}),
             },
         };
 
-        if (jobIdNum) {
-            whereClause.job = {
-                ...whereClause.job,
-                id: jobIdNum,
-            };
-        }
 
         if (status) {
             whereClause.status = status;
         }
+
+        if (search) {
+            whereClause.user = {
+                OR: [
+                    { email: { contains: search } },
+                    { fullname: { contains: search } },
+                ],
+            };
+        }
+
 
         const [applications, total] = await Promise.all([
             prisma.application.findMany({
@@ -222,5 +233,65 @@ export const getApplicationsByCompanyId = async (req, res) => {
     } catch (err) {
         console.error("Error fetching applications:", err);
         res.status(500).json({ message: "Failed to get company applications!", error: err.message });
+    }
+};
+
+export const getApplicationById = async (req, res) => {
+    try {
+        const { applicationId } = req.params;
+        const applicationIdNum = parseInt(applicationId);
+
+        if (isNaN(applicationIdNum)) {
+            return res.status(400).json({ message: "Invalid application ID!" });
+        }
+
+        const application = await prisma.application.findUnique({
+            where: { id: applicationIdNum },
+            include: {
+                job: {
+                    include: {
+                        company: true,
+                        category: true,
+                        position: true,
+                    },
+                },
+                user: {
+                    select: { id: true, fullname: true, email: true },
+                },
+            },
+        });
+
+        if (!application) {
+            return res.status(404).json({ message: "Application not found!" });
+        }
+
+        res.status(200).json(application);
+    } catch (err) {
+        console.error("Error fetching application by ID:", err);
+        res.status(500).json({ message: "Failed to get application details!", error: err.message });
+    }
+};
+
+
+export const hasUserApplied = async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        const userId = req.userId;
+
+        if (!jobId || isNaN(parseInt(jobId))) {
+            return res.status(400).json({ message: "Invalid job ID!" });
+        }
+
+        const existingApplication = await prisma.application.findFirst({
+            where: {
+                jobId: parseInt(jobId),
+                userId: userId,
+            },
+        });
+
+        res.status(200).json({ hasApplied: !!existingApplication });
+    } catch (err) {
+        console.error("Error checking application:", err);
+        res.status(500).json({ message: "Failed to check application status!" });
     }
 };

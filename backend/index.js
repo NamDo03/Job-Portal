@@ -12,7 +12,7 @@ import companyRoute from "./routes/company.route.js";
 import companySizeRoute from "./routes/companySize.route.js";
 import jobRoute from "./routes/job.route.js";
 import savedJobRoute from "./routes/savedJob.route.js";
-import savedJob from "./routes/savedJob.route.js";
+import applicationRoute from "./routes/application.route.js";
 
 const app = express();
 
@@ -31,7 +31,7 @@ app.use("/api/companies", companyRoute);
 app.use("/api/companySize", companySizeRoute);
 app.use("/api/jobs", jobRoute);
 app.use("/api/saved-jobs", savedJobRoute);
-app.use("/api/applications", savedJob);
+app.use("/api/applications", applicationRoute);
 
 app.listen(8800, () => {
     console.log("Server is running!");

@@ -60,11 +60,12 @@ export const changeJobStatus = async (id, status) => {
     }
 };
 
-export const getJobsByCompany = async (companyId, page = 1, search, status) => {
+export const getJobsByCompany = async (companyId, page = 1, search, status, all = false) => {
     try {
         const params = { page };
         if (search) params.search = search;
         if (status) params.status = status;
+        if (all) params.all = all;
 
         const response = await apiRequest.get(`/jobs/company/${companyId}`, {
             params,

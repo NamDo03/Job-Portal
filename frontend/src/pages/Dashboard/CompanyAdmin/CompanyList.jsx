@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Table from "../../../components/common/Table";
 import Loader from "../../../components/loader/Loader";
@@ -11,7 +10,6 @@ import { useDebounce } from "../../../hooks/useDebounce";
 import Select from "../../../components/common/Select";
 
 const CompanyList = () => {
-  const navigate = useNavigate();
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,7 +77,7 @@ const CompanyList = () => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
   };
-  
+
   return (
     <div className="flex flex-col gap-3 bg-white">
       {loading && <Loader />}

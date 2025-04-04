@@ -1,5 +1,6 @@
 import prisma from "../lib/prisma.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
+import fs from "fs";
 
 export const getCompanies = async (req, res) => {
     try {
@@ -73,7 +74,7 @@ export const getCompany = async (req, res) => {
                 members: { include: { user: true } },
                 jobs: true,
                 images: true,
-                size:true,
+                size: true,
             },
         });
 
@@ -168,6 +169,9 @@ export const createCompany = async (req, res) => {
     } catch (err) {
         console.error("Error creating company:", err);
         res.status(500).json({ message: "Failed to create company!" });
+    } finally {
+        fs.unlinkSync(logoFile);
+        fs.unlinkSync(imageFiles);
     }
 };
 

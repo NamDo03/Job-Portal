@@ -9,6 +9,7 @@ import JobStatusAction from "./JobStatusAction";
 import { FaInfo } from "react-icons/fa";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
+import ApplicationStatus from "./ApplicationStatus";
 
 const Table = ({
   columns,
@@ -42,18 +43,18 @@ const Table = ({
 
   return (
     <>
-      <div className="relative overflow-x-auto border rounded-sm border-text-footer">
+      <div className="relative overflow-x-auto border shadow-[0_2px_10px_rgb(0,0,0,0.2)] rounded-xl border-text-footer mt-3">
         <table className="w-full text-base text-left text-gray-500">
-          <thead className="text-base uppercase border-b text-text-primary">
+          <thead className="text-base capitalize border-b text-text-1 border-blue-gray-100 bg-[#ECEFF1]">
             <tr>
-              <th className="px-6 py-3 text-left text-gray-600 uppercase">#</th>
+              <th className="px-6 py-3 font-semibold text-left">#</th>
               {columns.map((col) => (
-                <th key={col} className="px-6 py-3">
+                <th key={col} className="px-6 py-3 font-semibold">
                   {col}
                 </th>
               ))}
               {actions && actions.length > 0 && (
-                <th className="px-6 py-3">Action</th>
+                <th className="px-6 py-3 font-semibold">Action</th>
               )}
             </tr>
           </thead>
@@ -61,7 +62,7 @@ const Table = ({
             {data.map((row, index) => (
               <tr
                 key={row.id || index}
-                className="border-b border-gray-200 odd:bg-white even:bg-sub-primary"
+                className="bg-white border-b border-gray-200 hover:bg-gray-50"
               >
                 <td className="px-6 py-4 text-gray-800">
                   {(currentPage - 1) * pageSize + index + 1}
@@ -79,6 +80,7 @@ const Table = ({
                       <span
                         className={`px-5 py-1.5 rounded-xl text-white ${
                           row[col].toLowerCase() === "active" ||
+                          row[col].toLowerCase() === "accepted" ||
                           row[col].toLowerCase() === "approved"
                             ? "bg-green-600"
                             : row[col].toLowerCase() === "pending"
@@ -86,6 +88,8 @@ const Table = ({
                             : row[col].toLowerCase() === "blocked" ||
                               row[col].toLowerCase() === "rejected"
                             ? "bg-red-500"
+                            : row[col].toLowerCase() === "viewed"
+                            ? "bg-blue-500"
                             : "bg-gray-500"
                         }`}
                       >
@@ -168,6 +172,17 @@ const Table = ({
 
                     {actions.includes("companyStatus") && (
                       <CompanyStatusAction
+                        row={row}
+                        onChangeStatus={(newStatus) => {
+                          if (onChangeStatus) {
+                            onChangeStatus(row, newStatus);
+                          }
+                        }}
+                      />
+                    )}
+
+                    {actions.includes("applicationStatus") && (
+                      <ApplicationStatus
                         row={row}
                         onChangeStatus={(newStatus) => {
                           if (onChangeStatus) {

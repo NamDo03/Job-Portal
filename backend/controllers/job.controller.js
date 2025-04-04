@@ -76,7 +76,7 @@ export const getJobById = async (req, res) => {
             include: {
                 company: {
                     include: {
-                        images: true  
+                        images: true
                     }
                 },
                 category: true,
@@ -256,7 +256,7 @@ export const getJobsByCompany = async (req, res) => {
     const pageSize = 8;
     try {
         const { companyId } = req.params;
-        const { page = 1, search, status } = req.query;
+        const { page = 1, search, status, all = false } = req.query;
         const pageNumber = parseInt(page, 10);
 
         if (isNaN(pageNumber)) {
@@ -274,6 +274,23 @@ export const getJobsByCompany = async (req, res) => {
             ...(status && { status }),
             ...(search && { title: { contains: search } }),
         };
+        
+        if (all) {
+            const jobs = await prisma.job.findMany({
+                where: filter,
+                orderBy: { postedAt: "desc" },
+                include: {
+                    company: true,
+                    category: true,
+                    position: true,
+                    salary: true,
+                    experienceLevel: true,
+                    skills: { include: { skill: true } },
+                },
+            });
+
+            return res.status(200).json({ data: jobs });
+        }
 
         const totalJobs = await prisma.job.count({ where: filter });
 

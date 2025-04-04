@@ -14,6 +14,7 @@ import { formatJobType } from "../utils/jobTypeFormatter";
 import { formatLocation } from "../utils/locationFormatter";
 import { isJobSavedByUser, saveJob, unsaveJob } from "../services/savedJob";
 import { toast } from "react-toastify";
+import { hasUserApplied } from "../services/application";
 
 const JobDetail = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -25,6 +26,7 @@ const JobDetail = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
 
   const fetchJobDetails = useCallback(async () => {
     setLoading(true);
@@ -52,6 +54,18 @@ const JobDetail = () => {
     }
   }, [currentUser?.id, job?.id]);
 
+  const checkApplicationStatus = useCallback(async () => {
+    if (!currentUser?.id || !job?.id) return;
+
+    try {
+      const applied = await hasUserApplied(job.id);
+      setHasApplied(applied);
+    } catch (error) {
+      console.error("Failed to check application status:", error);
+      toast.error("Failed to check application status");
+    }
+  }, [currentUser?.id, job?.id]);
+
   useEffect(() => {
     fetchJobDetails();
   }, [fetchJobDetails]);
@@ -59,6 +73,10 @@ const JobDetail = () => {
   useEffect(() => {
     checkSavedStatus();
   }, [checkSavedStatus]);
+
+  useEffect(() => {
+    checkApplicationStatus();
+  }, [checkApplicationStatus]);
 
   const handleSaveToggle = async () => {
     if (!currentUser) {
@@ -139,12 +157,16 @@ const JobDetail = () => {
               )}
             </button>
             <div className="w-[1px] h-11 bg-gray-200"></div>
-            <button
-              onClick={handleApplyClick}
-              className="py-3 font-semibold text-white bg-primary px-14 hover:bg-primary/80"
-            >
-              Apply
-            </button>
+            {!hasApplied ? (
+              <button
+                onClick={handleApplyClick}
+                className="py-3 font-semibold text-white bg-primary px-14 hover:bg-primary/80"
+              >
+                Apply
+              </button>
+            ) : (
+              <span className="py-3 font-semibold text-green-600">Applied</span>
+            )}
           </div>
         </div>
       </div>
@@ -175,11 +197,15 @@ const JobDetail = () => {
       <div className="main-container">
         <CompanyInfo company={job.company} />
       </div>
-      <AnimatePresence>
-        {isModalOpen && (
-          <ApplyJobModal onClose={() => setIsModalOpen(false)} job={job} />
-        )}
-      </AnimatePresence>
+      {isModalOpen && (
+        <AnimatePresence>
+          <ApplyJobModal
+            onClose={() => setIsModalOpen(false)}
+            job={job}
+            setHasApplied={setHasApplied}
+          />
+        </AnimatePresence>
+      )}
     </div>
   );
 };

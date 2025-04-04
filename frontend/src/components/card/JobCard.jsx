@@ -5,14 +5,16 @@ import { formatJobType } from "../../utils/jobTypeFormatter";
 import { formatLocation } from "../../utils/locationFormatter";
 import { tagColors } from "../../constants/constants";
 
-const JobCard = ({ job, haveBtn = false }) => {
+const JobCard = ({ job, haveBtn = false, hoverShadow = true }) => {
   const tagClass =
     tagColors[job.category.name] ||
     "border border-emerald-600 text-emerald-600 bg-white";
 
   return (
     <div
-      className={`bg-white py-4 lg:py-6 px-6 lg:px-10 hover:shadow-md transition-shadow flex flex-col sm:flex-row gap-5 justify-between items-start sm:items-center ${
+      className={`bg-white py-4 lg:py-6 px-6 lg:px-10 ${
+        hoverShadow && "hover:shadow-md"
+      }  transition-shadow flex flex-col sm:flex-row gap-5 justify-between items-start sm:items-center ${
         haveBtn && "border"
       }`}
     >
@@ -31,7 +33,7 @@ const JobCard = ({ job, haveBtn = false }) => {
           </h4>
           <span className="flex flex-row flex-wrap items-center text-sm text-text-1">
             <Link
-              to="/companies/1"
+              to={`/jobs/${job.id}`}
               className="cursor-pointer hover:text-primary"
             >
               {job.company.name}

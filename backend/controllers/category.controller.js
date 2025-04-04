@@ -1,5 +1,6 @@
 import prisma from "../lib/prisma.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
+import fs from "fs";
 
 export const getCategories = async (req, res) => {
     try {
@@ -92,6 +93,8 @@ export const createCategory = async (req, res) => {
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: "Failed to create category!" });
+    } finally {
+        fs.unlinkSync(image);
     }
 };
 
