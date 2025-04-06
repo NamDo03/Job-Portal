@@ -274,7 +274,7 @@ export const getJobsByCompany = async (req, res) => {
             ...(status && { status }),
             ...(search && { title: { contains: search } }),
         };
-        
+
         if (all) {
             const jobs = await prisma.job.findMany({
                 where: filter,
@@ -378,5 +378,28 @@ export const getFeaturedJobs = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Failed to fetch featured jobs" });
+    }
+};
+
+export const getJobCountByStatus = async (req, res) => {
+    try {
+        const { companyId } = req.params;
+
+        if (isNaN(parseInt(companyId))) {
+            return res.status(400).json({ message: "Invalid company ID!" });
+        }
+
+        const filter = { companyId: parseInt(companyId) };
+
+        const jobCountByStatus = await prisma.job.groupBy({
+            by: ['status'],
+            where: filter,
+            _count: true
+        });
+
+        res.status(200).json(jobCountByStatus);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch job count by status" });
     }
 };

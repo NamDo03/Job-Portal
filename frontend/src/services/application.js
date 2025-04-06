@@ -63,3 +63,17 @@ export const hasUserApplied = async (jobId) => {
         return false;
     }
 };
+
+export const getApplicationsCountByStatus = async (companyId) => {
+    try {
+        const response = await apiRequest.get(`/applications/count-by-status/${companyId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching applications count by status:", error.response?.data?.message || error.message);
+        return {
+            totalApplications: 0,
+            totalPendingApplications: 0,
+            data: {}
+        };
+    }
+};

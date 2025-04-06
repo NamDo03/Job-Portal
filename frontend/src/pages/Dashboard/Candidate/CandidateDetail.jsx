@@ -91,7 +91,7 @@ const CandidateDetail = () => {
                 <div className="flex flex-col">
                   <span className="text-text-2">Full Name</span>
                   <span className="text-text-primary">
-                    {candidate.user.fullname}s
+                    {candidate.user.fullname}
                   </span>
                 </div>
               </div>
@@ -105,7 +105,7 @@ const CandidateDetail = () => {
           <iframe
             src={candidate.resume}
             width="100%"
-            height="400px"
+            height="700px"
             title="PDF Resume Preview"
             className="rounded-md"
           />

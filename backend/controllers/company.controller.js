@@ -278,7 +278,7 @@ export const updateCompanyStatus = async (req, res) => {
 export const getCompanyMembers = async (req, res) => {
     try {
         const { id } = req.params;
-        const { page = 1, search } = req.query;
+        const { page = 1, search, all = false } = req.query;
         const pageNumber = parseInt(page, 10);
         const pageSize = 8;
 
@@ -323,27 +323,21 @@ export const getCompanyMembers = async (req, res) => {
             }),
         };
 
-        const company = await prisma.company.findUnique({
-            where: { id: parseInt(id) },
-            include: {
-                members: {
-                    include: {
-                        user: true,
-                    },
-                    skip: skip,
-                    take: pageSize,
+        const members = all
+            ? await prisma.companyMember.findMany({
+                where: filter,
+                include: {
+                    user: true,
                 },
-            },
-        });
-
-        const members = await prisma.companyMember.findMany({
-            where: filter,
-            include: {
-                user: true,
-            },
-            skip: skip,
-            take: pageSize,
-        });
+            })
+            : await prisma.companyMember.findMany({
+                where: filter,
+                include: {
+                    user: true,
+                },
+                skip: skip,
+                take: pageSize,
+            });
 
         const totalMembers = await prisma.companyMember.count({
             where: filter,
@@ -353,9 +347,9 @@ export const getCompanyMembers = async (req, res) => {
             data: members,
             pagination: {
                 total: totalMembers,
-                page: pageNumber,
-                limit: pageSize,
-                totalPages: Math.ceil(totalMembers / pageSize),
+                page: pageNumber || 1,
+                limit: pageSize || undefined,
+                totalPages: Math.ceil(totalMembers / pageSize) || 1,
             },
         });
     } catch (error) {

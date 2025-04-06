@@ -15,6 +15,7 @@ import {
   FaMoneyCheckAlt,
   FaUsers,
 } from "react-icons/fa";
+import { LuLayoutDashboard } from "react-icons/lu";
 import { IoBriefcaseSharp, IoLogOutOutline } from "react-icons/io5";
 import SidebarItem from "./SidebarItem";
 import avatar_default from "../../../assets/default_user_avatar.png";
@@ -111,6 +112,17 @@ const Sidebar = () => {
       <div className="flex flex-col flex-1 gap-3 overflow-scroll no-scrollbar">
         {currentUser.role === "RECRUITER" && (
           <>
+            <SidebarItem
+              name="Dashboard"
+              isActive={activeLink === "Dashboard"}
+              onClick={() => handleNavigationClick("Dashboard")}
+              link="/recruiter-dashboard"
+            >
+              <LuLayoutDashboard
+                size={28}
+                className="stroke-inherit stroke-[1.5] min-w-8 w-8"
+              />
+            </SidebarItem>
             {isCompanyOwner && (
               <SidebarItem
                 name="Company"
@@ -208,7 +220,7 @@ const Sidebar = () => {
               onClick={() => handleNavigationClick("Dashboard")}
               link="/admin"
             >
-              <HiOutlineChartBar
+              <LuLayoutDashboard
                 size={28}
                 className="stroke-inherit stroke-[1.5] min-w-8 w-8"
               />

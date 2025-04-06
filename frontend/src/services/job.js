@@ -10,7 +10,7 @@ export const getJobs = async (page = 1, search, status = "", filters = {}) => {
         if (filters.levels) params.levels = filters.levels;
         if (filters.salaries) params.salaries = filters.salaries;
         if (filters.location) params.location = filters.location;
-        const response = await apiRequest.get('/jobs', {
+        const response = await apiRequest.get('/jobs/all', {
             params,
         });
         return response.data;
@@ -94,5 +94,15 @@ export const getFeaturedJobs = async () => {
     } catch (error) {
         console.error("Error fetching featured jobs:", error.response?.data?.message || error.message);
         throw new Error(error.response?.data?.message || "Failed to fetch featured jobs");
+    }
+};
+
+export const getJobCountByStatus = async (companyId) => {
+    try {
+        const response = await apiRequest.get(`/jobs/company/${companyId}/status-count`);
+        return response.data; 
+    } catch (error) {
+        console.error("Error fetching job count by status:", error.response?.data?.message || error.message);
+        throw new Error(error.response?.data?.message || "Failed to fetch job count by status");
     }
 };

@@ -58,7 +58,7 @@ export const updateCompanyStatus = async (id, status) => {
     }
 };
 
-export const getCompanyMembers = async (id, page = 1, search) => {
+export const getCompanyMembers = async (id, page = 1, search, all = false) => {
     if (!id || isNaN(parseInt(id))) {
         throw new Error("Invalid company ID!");
     }
@@ -68,6 +68,7 @@ export const getCompanyMembers = async (id, page = 1, search) => {
             params: {
                 page,
                 search,
+                all
             },
         });
         return response.data;

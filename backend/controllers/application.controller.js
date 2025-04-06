@@ -295,3 +295,59 @@ export const hasUserApplied = async (req, res) => {
         res.status(500).json({ message: "Failed to check application status!" });
     }
 };
+
+export const getApplicationsCountByStatus = async (req, res) => {
+    try {
+        const { companyId } = req.params;
+
+        if (isNaN(parseInt(companyId))) {
+            return res.status(400).json({ message: "Invalid company ID!" });
+        }
+
+        const dateSevenDaysAgo = new Date();
+        dateSevenDaysAgo.setDate(dateSevenDaysAgo.getDate() - 7);
+
+        const applications = await prisma.application.findMany({
+            where: {
+                job: {
+                    companyId: parseInt(companyId),
+                },
+                appliedAt: {
+                    gte: dateSevenDaysAgo,
+                },
+            },
+        });
+
+        const totalApplications = applications.length;
+
+        const totalPendingApplications = applications.filter(application => application.status === 'PENDING').length;
+
+        const result = applications.reduce((acc, application) => {
+            const date = application.appliedAt.toISOString().split('T')[0];
+            if (!acc[date]) {
+                acc[date] = { date, pending: 0, approved: 0, rejected: 0 };
+            }
+
+            if (application.status === 'PENDING' || application.status === 'VIEWED') {
+                acc[date].pending += 1;
+            } else if (application.status === 'ACCEPTED') {
+                acc[date].approved += 1;
+            } else if (application.status === 'REJECTED') {
+                acc[date].rejected += 1;
+            }
+
+            return acc;
+        }, {});
+
+        const formattedData = Object.values(result);
+
+        res.status(200).json({
+            data: formattedData,
+            totalApplications,
+            totalPendingApplications
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch application count by status" });
+    }
+};

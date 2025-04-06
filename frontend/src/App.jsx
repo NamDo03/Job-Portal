@@ -51,6 +51,7 @@ import JobDetailAdmin from "./pages/Dashboard/Job/JobDetail";
 import SavedJobsPage from "./pages/SavedJobsPage";
 import CandidateList from "./pages/Dashboard/Candidate/CandidateList";
 import CandidateDetail from "./pages/Dashboard/Candidate/CandidateDetail";
+import RecruiterDashboard from "./pages/Dashboard/RecruiterDashboard";
 
 function App() {
   const { currentUser } = useSelector((state) => state.user);
@@ -153,7 +154,7 @@ function App() {
         {/* Recruiter Route */}
         <Route element={<ProtectedRoute requiredRoles={["RECRUITER"]} />}>
           <Route path="/recruiter-dashboard" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
+            <Route index element={<RecruiterDashboard />} />
             {recruiterRoutes.map(({ path, element }) => (
               <Route key={path} path={path} element={element} />
             ))}
