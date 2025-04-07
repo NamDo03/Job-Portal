@@ -403,3 +403,66 @@ export const getJobCountByStatus = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch job count by status" });
     }
 };
+
+export const getJobStats = async (req, res) => {
+    try {
+        const now = new Date();
+        const twelveMonthsAgo = new Date();
+        twelveMonthsAgo.setMonth(now.getMonth() - 12);
+
+        const [total, pending, approved, rejected] = await Promise.all([
+            prisma.job.count(),
+            prisma.job.count({ where: { status: "PENDING" } }),
+            prisma.job.count({ where: { status: "APPROVED" } }),
+            prisma.job.count({ where: { status: "REJECTED" } }),
+        ]);
+
+        const monthlyPosts = await prisma.job.groupBy({
+            by: ['postedAt', 'status'],
+            _count: { id: true },
+            where: {
+                postedAt: {
+                    gte: twelveMonthsAgo,
+                },
+                status: {
+                    in: ['PENDING', 'APPROVED', 'REJECTED'], 
+                },
+            },
+            orderBy: {
+                postedAt: 'asc',
+            },
+        });
+
+        const monthlyPostsData = [];
+        monthlyPosts.forEach((item) => {
+            const month = item.postedAt.toISOString().slice(0, 7); 
+            const existingMonth = monthlyPostsData.find((data) => data.month === month);
+
+            if (existingMonth) {
+                existingMonth[item.status] = item._count.id;
+            } else {
+                monthlyPostsData.push({
+                    month,
+                    [item.status]: item._count.id,
+                });
+            }
+        });
+
+        res.status(200).json({
+            totalJobs: total,
+            pendingJobs: pending,
+            approvedJobs: approved,
+            rejectedJobs: rejected,
+            monthlyPosts: monthlyPostsData,
+            statusCounts: [
+                { status: "Pending", count: pending },
+                { status: "Approved", count: approved },
+                { status: "Rejected", count: rejected },
+            ], 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch job statistics" });
+    }
+};
+

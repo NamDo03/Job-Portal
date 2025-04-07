@@ -100,9 +100,20 @@ export const getFeaturedJobs = async () => {
 export const getJobCountByStatus = async (companyId) => {
     try {
         const response = await apiRequest.get(`/jobs/company/${companyId}/status-count`);
-        return response.data; 
+        return response.data;
     } catch (error) {
         console.error("Error fetching job count by status:", error.response?.data?.message || error.message);
         throw new Error(error.response?.data?.message || "Failed to fetch job count by status");
+    }
+};
+
+
+export const getJobStats = async () => {
+    try {
+        const response = await apiRequest.get("/jobs/job-stats");
+        return response.data;
+    } catch (err) {
+        console.error("Failed to fetch job stats:", err);
+        return null;
     }
 };
