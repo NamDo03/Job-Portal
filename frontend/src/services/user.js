@@ -77,3 +77,13 @@ export const changeUserStatus = async (userId) => {
         console.error('Network Error:', error.message);
     }
 };
+
+export const getUserStats = async () => {
+    try {
+        const response = await apiRequest.get('/users/stats');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user stats:', error);
+        return null;
+    }
+};

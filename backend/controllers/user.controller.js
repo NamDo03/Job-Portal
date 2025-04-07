@@ -304,3 +304,65 @@ export const changeUserStatus = async (req, res) => {
         res.status(500).json({ message: "Failed to update user status!" });
     }
 };
+
+
+export const getUserStats = async (req, res) => {
+    try {
+      const tokenUserRole = req.role;
+  
+      if (tokenUserRole !== "ADMIN") {
+        return res.status(403).json({ message: "Not Authorized!" });
+      }
+  
+      const totalUsers = await prisma.user.count();
+  
+      const userRoles = await prisma.user.groupBy({
+        by: ["role"],
+        _count: true,
+      });
+  
+      const usersByRole = userRoles.map(role => ({
+        role: role.role.charAt(0) + role.role.slice(1).toLowerCase(),
+        count: role._count,
+      }));
+  
+      const currentYear = new Date().getFullYear();
+  
+      const usersByMonth = await prisma.user.groupBy({
+        by: ["createdAt"],
+        _count: true,
+        where: {
+          createdAt: {
+            gte: new Date(`${currentYear}-01-01`),
+            lt: new Date(`${currentYear + 1}-01-01`)
+          }
+        },
+      });
+  
+      const monthlyCountMap = {};
+  
+      for (const entry of usersByMonth) {
+        const month = new Date(entry.createdAt).getMonth(); 
+        if (!monthlyCountMap[month]) {
+          monthlyCountMap[month] = 0;
+        }
+        monthlyCountMap[month] += entry._count;
+      }
+  
+      const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const monthlyRegistrations = monthLabels.map((label, idx) => ({
+        month: label,
+        users: monthlyCountMap[idx] || 0,
+      }));
+  
+      res.status(200).json({
+        totalUsers,
+        usersByRole,
+        monthlyRegistrations,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to fetch user statistics" });
+    }
+  };
+  

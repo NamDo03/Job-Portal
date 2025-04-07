@@ -1,9 +1,11 @@
 import express from "express";
 import { verifyToken } from "../middleware/verifyToken.js";
-import { changePassword, changeUserStatus, createUser, deleteUser, getUser, getUsers, updateUser } from "../controllers/user.controller.js";
+import { changePassword, changeUserStatus, createUser, deleteUser, getUser, getUsers, getUserStats, updateUser } from "../controllers/user.controller.js";
 import { upload } from "../middleware/uploadFile.js";
 
 const router = express.Router();
+
+router.get("/stats", verifyToken, getUserStats)
 
 router.get("/", getUsers)
 router.get("/:id", verifyToken, getUser)
@@ -12,5 +14,6 @@ router.put("/:id", verifyToken, upload.fields([{ name: 'avatar', maxCount: 1 }, 
 router.delete("/:id", verifyToken, deleteUser)
 router.put("/change-password/:id", verifyToken, changePassword);
 router.put("/status/:id", verifyToken, changeUserStatus);
+
 
 export default router
