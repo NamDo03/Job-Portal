@@ -8,6 +8,29 @@ const transporter = nodemailer.createTransport({
     },
 });
 
+const notificationForm = (content) => (`
+      <div style="background-color: #f9f9f9; padding: 20px;">
+    <div
+      style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+
+      <div
+        style=" background: linear-gradient(to left, #7f5af0, #ffffff);; padding: 20px; text-align: center;display: flex; align-items: center;">
+        <img
+          src="https://res.cloudinary.com/dhaz9s7rj/image/upload/v1744188759/logo_tcxz2m.png"
+          alt="Logo" style="width: 60px; object-fit: cover;padding-right:15px" />
+        <h3>JobHuntly</h3>
+      </div>
+      <h2 style="margin: 0; color: #333; text-align: center; margin-top: 20px; font-size: 20px;">JobHuntly Notification</h2>
+
+      <div style="padding: 20px;">
+        <p style="font-size: 16px; color: #333;">
+            ${content}
+        </p>
+      </div>
+
+    </div>
+  </div>`)
+
 export const sendVerificationEmail = async (to, code) => {
     await transporter.sendMail({
         from: `"Verify App" <jobhuntly@test.com>`,
@@ -33,7 +56,7 @@ export const sendCompanyStatusEmail = async (to, status) => {
         from: `"Job Portal" <${process.env.EMAIL_USERNAME}>`,
         to,
         subject,
-        html: `<p>${message}</p>`,
+        html: notificationForm(message),
     });
 };
 
@@ -50,16 +73,18 @@ export const sendJobPostStatusEmail = async (to, jobTitle, status) => {
         from: `"Job Portal" <${process.env.EMAIL_USERNAME}>`,
         to,
         subject,
-        html: `<p>${message}</p>`,
+        html: notificationForm(message),
     });
 };
 
 export const sendUserBlockedEmail = async (to) => {
+    const message = `Your account has been <strong style="color:red;">blocked</strong> due to a violation of our terms of service. If you believe this is a mistake, please contact support.`;
+
     await transporter.sendMail({
         from: `"Job Portal" <${process.env.EMAIL_USERNAME}>`,
         to,
         subject: "Account Blocked Notification",
-        html: `Your account has been <strong style="color:red;">blocked</strong> due to a violation of our terms of service. If you believe this is a mistake, please contact support.`,
+        html: notificationForm(message),
     });
 };
 
@@ -74,6 +99,6 @@ export const sendApplicationStatusEmail = async (to, jobTitle, status) => {
         from: `"Job Portal" <${process.env.EMAIL_USERNAME}>`,
         to,
         subject,
-        html: `<p>${message}</p>`,
+        html: notificationForm(message),
     });
 };
