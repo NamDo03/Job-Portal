@@ -107,3 +107,13 @@ export const deleteMember = async (companyId, memberId) => {
         throw new Error(error.response?.data?.message || "Failed to delete member");
     }
 };
+
+export const getCompaniesStatics = async () => {
+    try {
+        const response = await apiRequest.get(`/companies/statics`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching company statics:", error.response?.data?.message || error.message);
+        throw new Error(error.response?.data?.message || "Failed to fetch company statics");
+    }
+};

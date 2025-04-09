@@ -505,3 +505,60 @@ export const deleteMember = async (req, res) => {
         res.status(500).json({ error: "Failed to delete member" });
     }
 };
+
+
+export const getCompaniesStatics = async (req, res) => {
+    try {
+        const totalCompanies = await prisma.company.count();
+
+        const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+
+        const monthlyRegistrations = await prisma.company.groupBy({
+            by: ["createdAt"],
+            _count: {
+                id: true,
+            },
+            where: {
+                createdAt: {
+                    gte: startOfYear,
+                },
+            },
+        });
+
+        const monthlyDataMap = {};
+        monthlyRegistrations.forEach((entry) => {
+            const month = entry.createdAt.toLocaleString("default", { month: "short" });
+            monthlyDataMap[month] = (monthlyDataMap[month] || 0) + entry._count.id;
+        });
+
+        const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthlyDataFormatted = allMonths.map((month) => ({
+            month,
+            companies: monthlyDataMap[month] || 0,
+        }));
+
+        const companySizeStats = await prisma.companySize.findMany({
+            include: {
+                companies: {
+                    select: {
+                        id: true,
+                    },
+                },
+            },
+        });
+
+        const companiesByCompanySize = companySizeStats.map((size) => ({
+            companySize: `${size.minEmployees}-${size.maxEmployees}`,
+            count: size.companies.length,
+        }));
+
+        return res.status(200).json({
+            totalCompanies,
+            monthlyRegistrations: monthlyDataFormatted,
+            companiesByCompanySize,
+        });
+    } catch (error) {
+        console.error("Error fetching company statistics:", error);
+        return res.status(500).json({ message: "Failed to fetch company statistics" });
+    }
+};
