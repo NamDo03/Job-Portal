@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import prisma from "../lib/prisma.js";
 import jwt from "jsonwebtoken"
+import { sendVerificationEmail } from "../lib/mailer.js";
+import { deleteVerificationCode, getVerificationCode, saveVerificationCode } from "../lib/verificationStore.js";
 
 export const signup = async (req, res) => {
     const { fullname, email, password, gender, role } = req.body;
@@ -13,15 +15,13 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: "Email is already registered." });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        await sendVerificationEmail(email, verificationCode);
+        saveVerificationCode(email, verificationCode);
 
-        const newUser = await prisma.user.create({
-            data: {
-                fullname, email, password: hashedPassword, gender, role,
-            }
-        })
-        console.log("New User Created:", newUser);
-        res.status(201).json({ message: "Account successfully created!" });
+        res.status(200).json({
+            message: "Verification code sent to email. Please verify to complete registration.",
+        });
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: "An error occurred while creating the account. Please try again later." });
@@ -102,3 +102,33 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
     res.clearCookie("token").status(200).json({ message: "Logout Successful" });
 }
+
+export const verifyAccount = async (req, res) => {
+    const { fullname, email, password, gender, role, code } = req.body;
+
+    const stored = getVerificationCode(email);
+    if (!stored || stored.code !== code || stored.expiresAt < Date.now()) {
+        return res.status(400).json({ message: "Invalid or expired verification code" });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await prisma.user.create({
+            data: {
+                fullname,
+                email,
+                password: hashedPassword,
+                gender,
+                role,
+            },
+        });
+
+        deleteVerificationCode(email);
+
+        console.log("New user", newUser)
+        res.status(201).json({ success: true, message: "Account successfully created!" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "Failed to create account." });
+    }
+};

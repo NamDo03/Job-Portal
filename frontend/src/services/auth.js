@@ -37,3 +37,14 @@ export const logout = async () => {
     }
 };
 
+export const verifyEmail = async (formData, code) => {
+    try {
+        const response = await apiRequest.post("/auth/verify", { ...formData, code });
+        return response.data;
+    } catch (error) {
+        console.error("Verify email failed:", error.response?.data || error.message);
+        return { error: error.response?.data?.message || "Verify email failed" };
+    }
+};
+
+
