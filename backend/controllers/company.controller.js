@@ -1,3 +1,4 @@
+import { sendCompanyStatusEmail } from "../lib/mailer.js";
 import prisma from "../lib/prisma.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
@@ -257,6 +258,9 @@ export const updateCompanyStatus = async (req, res) => {
 
         const existingCompany = await prisma.company.findUnique({
             where: { id: parseInt(id) },
+            include: {
+                owner: true
+            }
         });
 
         if (!existingCompany) {
@@ -267,7 +271,7 @@ export const updateCompanyStatus = async (req, res) => {
             where: { id: parseInt(id) },
             data: { status },
         });
-
+        await sendCompanyStatusEmail(existingCompany.owner.email, status)
         res.status(200).json(updatedCompany);
     } catch (error) {
         console.error(error);

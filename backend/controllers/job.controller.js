@@ -1,3 +1,4 @@
+import { sendJobPostStatusEmail } from "../lib/mailer.js";
 import prisma from "../lib/prisma.js";
 
 export const getAllJobs = async (req, res) => {
@@ -234,6 +235,13 @@ export const changeStatusJob = async (req, res) => {
 
         const job = await prisma.job.findUnique({
             where: { id: parseInt(id) },
+            include: {
+                company: {
+                    include: {
+                        owner: true
+                    }
+                },
+            }
         });
 
         if (!job) {
@@ -244,7 +252,7 @@ export const changeStatusJob = async (req, res) => {
             where: { id: parseInt(id) },
             data: { status },
         });
-
+        await sendJobPostStatusEmail(job.company.owner.email, job.title, status)
         res.status(200).json(updatedJob);
     } catch (error) {
         console.error(error);
@@ -425,7 +433,7 @@ export const getJobStats = async (req, res) => {
                     gte: twelveMonthsAgo,
                 },
                 status: {
-                    in: ['PENDING', 'APPROVED', 'REJECTED'], 
+                    in: ['PENDING', 'APPROVED', 'REJECTED'],
                 },
             },
             orderBy: {
@@ -435,7 +443,7 @@ export const getJobStats = async (req, res) => {
 
         const monthlyPostsData = [];
         monthlyPosts.forEach((item) => {
-            const month = item.postedAt.toISOString().slice(0, 7); 
+            const month = item.postedAt.toISOString().slice(0, 7);
             const existingMonth = monthlyPostsData.find((data) => data.month === month);
 
             if (existingMonth) {
@@ -458,7 +466,7 @@ export const getJobStats = async (req, res) => {
                 { status: "Pending", count: pending },
                 { status: "Approved", count: approved },
                 { status: "Rejected", count: rejected },
-            ], 
+            ],
         });
     } catch (error) {
         console.error(error);

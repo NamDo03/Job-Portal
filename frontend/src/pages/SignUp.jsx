@@ -248,7 +248,7 @@ const SignUp = () => {
         </div>
       )}
       {step === 2 && (
-        <div className="flex flex-col items-center gap-6 px-16 py-6 bg-white border shadow-xl rounded-xl">
+        <div className="flex flex-col items-center gap-6 px-16 py-6 bg-white border rounded-lg shadow-xl">
           <img src={logo} alt="logo" />
           <h3 className="text-xl text-center text-text-primary">
             Please check your email.
@@ -266,7 +266,7 @@ const SignUp = () => {
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
-                className="w-12 h-12 text-lg text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-12 h-12 text-lg text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary ring-offset-1"
                 value={code[index] || ""}
                 onChange={(e) => {
                   const val = e.target.value;

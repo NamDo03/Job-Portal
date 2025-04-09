@@ -1,3 +1,4 @@
+import { sendApplicationStatusEmail } from "../lib/mailer.js";
 import prisma from "../lib/prisma.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import fs from "fs";
@@ -76,6 +77,7 @@ export const changeApplicationStatus = async (req, res) => {
                         },
                     },
                 },
+                user: true
             },
         });
 
@@ -105,7 +107,7 @@ export const changeApplicationStatus = async (req, res) => {
                 job: true,
             },
         });
-
+        await sendApplicationStatusEmail(application.user.email, application.job.title, status)
         res.status(200).json(updatedApplication);
     } catch (err) {
         console.log(err);
