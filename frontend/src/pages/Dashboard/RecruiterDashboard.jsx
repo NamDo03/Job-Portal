@@ -87,7 +87,11 @@ const RecruiterDashboard = () => {
     ? (reviewerCount / totalMembers) * 100
     : 0;
 
-  const COLORS = ["#FFB836", "#56CDAD", "#FF6550"];
+  const STATUS_COLORS = {
+    pending: "#FFB836",
+    approved: "#56CDAD",
+    rejected: "#FF6550",
+  };
 
   if (loading) return <Loader />;
   return (
@@ -170,6 +174,9 @@ const RecruiterDashboard = () => {
             <h3 className="mb-4 text-lg font-semibold text-text-primary">
               Job Status Overview
             </h3>
+            <p>
+              Total Jobs: {jobCount.reduce((sum, item) => sum + item.value, 0)}
+            </p>
             <div className="mx-auto ">
               <PieChart width={350} height={300}>
                 <Pie
@@ -184,7 +191,12 @@ const RecruiterDashboard = () => {
                   paddingAngle={0}
                 >
                   {jobCount.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={
+                        STATUS_COLORS[entry.name.toLowerCase()] || "#8884d8"
+                      }
+                    />
                   ))}
                 </Pie>
                 <Tooltip />

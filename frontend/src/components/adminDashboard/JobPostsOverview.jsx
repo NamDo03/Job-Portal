@@ -15,7 +15,11 @@ import {
 import { getJobStats } from "../../services/job";
 import { HiOutlineClipboardList } from "react-icons/hi";
 
-const COLORS = ["#82ca9d", "#8884d8", "#ff7f50"];
+const STATUS_COLORS = {
+  pending: "#FFB836",
+  approved: "#56CDAD",
+  rejected: "#FF6550",
+};
 
 const JobPostsOverview = () => {
   const [stats, setStats] = useState(null);
@@ -50,8 +54,8 @@ const JobPostsOverview = () => {
             <YAxis allowDecimals={false} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="PENDING" fill="#82ca9d" stackId="a" />
-            <Bar dataKey="APPROVED" fill="#8884d8" stackId="a" />
+            <Bar dataKey="PENDING" fill="#FFB836" stackId="a" />
+            <Bar dataKey="APPROVED" fill="#56CDAD" stackId="a" />
             <Bar dataKey="REJECTED" fill="#ff7f50" stackId="a" />
           </BarChart>
         </ResponsiveContainer>
@@ -96,7 +100,7 @@ const JobPostsOverview = () => {
                 {jobStatusDistribution.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
+                    fill={STATUS_COLORS[entry.name.toLowerCase()] || "#8884d8"}
                   />
                 ))}
               </Pie>
