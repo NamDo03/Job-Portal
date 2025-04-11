@@ -19,7 +19,7 @@ const notificationForm = (content) => (`
           src="https://res.cloudinary.com/dhaz9s7rj/image/upload/v1744252432/logo2_wrud2a.png"
           alt="Logo" style="height: 48px; object-fit: cover;padding-right:15px" />
       </div>
-      <h2 style="margin: 0; color: #333; text-align: center; margin-top: 20px; font-size: 20px;">JobHuntly Notification</h2>
+      <h2 style="margin: 0; color: #333; text-align: center; margin-top: 20px; font-size: 20px;">Workin Notification</h2>
 
       <div style="padding: 20px;">
         <p style="font-size: 16px; color: #333;">
