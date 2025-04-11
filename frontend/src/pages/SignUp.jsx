@@ -5,7 +5,7 @@ import Logo from "../components/common/Logo";
 import { useForm } from "react-hook-form";
 import { signup, verifyEmail } from "../services/auth";
 import { toast } from "react-toastify";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo2.png";
 
 const SignUp = () => {
   const {
@@ -249,7 +249,7 @@ const SignUp = () => {
       )}
       {step === 2 && (
         <div className="flex flex-col items-center gap-6 px-16 py-6 bg-white border rounded-lg shadow-xl">
-          <img src={logo} alt="logo" />
+          <img src={logo} alt="logo" className="object-cover h-14" />
           <h3 className="text-xl text-center text-text-primary">
             Please check your email.
           </h3>

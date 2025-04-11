@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import logo from "../../../assets/logo.png";
+import logo from "../../../assets/logo1.png";
 import { motion, useAnimationControls } from "framer-motion";
 import {
   containerVariants,
@@ -89,7 +89,7 @@ const Sidebar = () => {
       className="sticky top-0 left-0 z-10 flex flex-col h-screen gap-5 p-5 overflow-hidden bg-white shadow-neutral-600"
     >
       <div className="flex flex-row justify-between w-full place-items-center">
-        <div className="w-8 h-8">
+        <div className="w-10">
           <Link to="/">
             <img src={logo} alt="logo" className="object-cover w-full h-full" />
           </Link>

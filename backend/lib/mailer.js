@@ -16,9 +16,8 @@ const notificationForm = (content) => (`
       <div
         style=" background: linear-gradient(to left, #7f5af0, #ffffff);; padding: 20px; text-align: center;display: flex; align-items: center;">
         <img
-          src="https://res.cloudinary.com/dhaz9s7rj/image/upload/v1744188759/logo_tcxz2m.png"
-          alt="Logo" style="width: 60px; object-fit: cover;padding-right:15px" />
-        <h3>JobHuntly</h3>
+          src="https://res.cloudinary.com/dhaz9s7rj/image/upload/v1744252432/logo2_wrud2a.png"
+          alt="Logo" style="height: 48px; object-fit: cover;padding-right:15px" />
       </div>
       <h2 style="margin: 0; color: #333; text-align: center; margin-top: 20px; font-size: 20px;">JobHuntly Notification</h2>
 
